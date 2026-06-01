@@ -1,11 +1,10 @@
 """Fine-tune a base model on the Uzbek embedding pairs.
 
-CachedMultipleNegativesRankingLoss with in-batch negatives, one pass over the
-(optionally subsampled) train split. The cached (GradCache) variant runs the
-forward/backward in chunks of ``config.MINI_BATCH_SIZE`` so the full
-``config.BATCH_SIZE`` worth of negatives fits on a free-tier T4. The model family
-is selected with ``--group``; its base checkpoint, output repo and input prefixes
-come from ``config.MODELS``.
+MultipleNegativesRankingLoss with in-batch negatives, one pass over the (optionally
+subsampled) train split. ``config.BATCH_SIZE`` is sized to fill a free-tier T4 -- a
+plain forward/backward is faster than gradient caching once the batch already fits.
+The model family is selected with ``--group``; its base checkpoint, output repo and
+input prefixes come from ``config.MODELS``.
 
     python -m src.train --group minilm
     python -m src.train --group e5_small
@@ -15,6 +14,10 @@ On success the fine-tuned model is pushed to its Hub repo (unless ``--no-push`` 
 ``--smoke``), and always saved locally under ``outputs/``.
 """
 import argparse
+import os
+
+# Reduce CUDA fragmentation so a near-full batch fits without OOM (PyTorch CUDA docs).
+os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
 
 import torch
 from sentence_transformers import (
@@ -22,7 +25,7 @@ from sentence_transformers import (
     SentenceTransformerTrainer,
     SentenceTransformerTrainingArguments,
 )
-from sentence_transformers.losses import CachedMultipleNegativesRankingLoss
+from sentence_transformers.losses import MultipleNegativesRankingLoss
 from sentence_transformers.training_args import BatchSamplers
 
 import config
@@ -54,7 +57,7 @@ def train(group: str, smoke: bool = False, push: bool = True) -> SentenceTransfo
     model.max_seq_length = config.MAX_SEQ_LEN
 
     train_ds = data.load_train_dataset(group, smoke=smoke)
-    loss = CachedMultipleNegativesRankingLoss(model, mini_batch_size=config.MINI_BATCH_SIZE)
+    loss = MultipleNegativesRankingLoss(model)
 
     trainer = SentenceTransformerTrainer(
         model=model,

@@ -42,8 +42,7 @@ FLORES_SPLIT = "devtest"
 # --- Training hyperparameters ---
 SEED = 42
 EPOCHS = 1
-BATCH_SIZE = 128            # in-batch negatives; cached loss keeps this fixed regardless of GPU
-MINI_BATCH_SIZE = 32        # cached-loss forward/backward chunk; this caps GPU memory, not the negatives
+BATCH_SIZE = 96             # in-batch negatives; sized to fill a free-tier T4 (128 OOMs)
 LR = 2e-5
 WARMUP_RATIO = 0.1
 MAX_SEQ_LEN = 192
