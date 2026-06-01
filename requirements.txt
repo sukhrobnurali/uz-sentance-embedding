@@ -1,0 +1,8 @@
+# Verified on Colab (latest stable) before pinning. Floors reflect the
+# sentence-transformers Trainer API used by src/train.py.
+sentence-transformers>=3.0
+transformers>=4.40
+datasets>=2.19
+accelerate>=0.30
+torch>=2.1
+huggingface_hub>=0.23

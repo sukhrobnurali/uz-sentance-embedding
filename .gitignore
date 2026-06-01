@@ -1,0 +1,10 @@
+# Trained model checkpoints / local saves (pushed to the Hub, not committed)
+outputs/
+
+# Python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# HF / datasets cache
+.cache/

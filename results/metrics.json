@@ -1,0 +1,59 @@
+{
+  "e5_small": {
+    "baseline": {
+      "model": "intfloat/multilingual-e5-small",
+      "uz_wiki": {
+        "uz_wiki_cosine_accuracy@1": 0.9868,
+        "uz_wiki_cosine_accuracy@5": 0.9948,
+        "uz_wiki_cosine_accuracy@10": 0.9962,
+        "uz_wiki_cosine_precision@1": 0.9868,
+        "uz_wiki_cosine_precision@5": 0.19895999999999997,
+        "uz_wiki_cosine_precision@10": 0.09961999999999999,
+        "uz_wiki_cosine_recall@1": 0.9868,
+        "uz_wiki_cosine_recall@5": 0.9948,
+        "uz_wiki_cosine_recall@10": 0.9962,
+        "uz_wiki_cosine_ndcg@1": 0.9868,
+        "uz_wiki_cosine_ndcg@5": 0.991392438350253,
+        "uz_wiki_cosine_ndcg@10": 0.9918383310598944,
+        "uz_wiki_cosine_mrr@1": 0.9868,
+        "uz_wiki_cosine_mrr@5": 0.9902299999999999,
+        "uz_wiki_cosine_mrr@10": 0.9904099206349207,
+        "uz_wiki_cosine_map@100": 0.9904929992660567
+      },
+      "flores_uz_en": {
+        "flores_uz_en_src2trg_accuracy": 0.9713438735177866,
+        "flores_uz_en_trg2src_accuracy": 0.9851778656126482,
+        "flores_uz_en_mean_accuracy": 0.9782608695652174
+      }
+    }
+  },
+  "deltas": {},
+  "minilm": {
+    "baseline": {
+      "model": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+      "uz_wiki": {
+        "uz_wiki_cosine_accuracy@1": 0.2564,
+        "uz_wiki_cosine_accuracy@5": 0.3742,
+        "uz_wiki_cosine_accuracy@10": 0.4314,
+        "uz_wiki_cosine_precision@1": 0.2564,
+        "uz_wiki_cosine_precision@5": 0.07484,
+        "uz_wiki_cosine_precision@10": 0.04314000000000001,
+        "uz_wiki_cosine_recall@1": 0.2564,
+        "uz_wiki_cosine_recall@5": 0.3742,
+        "uz_wiki_cosine_recall@10": 0.4314,
+        "uz_wiki_cosine_ndcg@1": 0.2564,
+        "uz_wiki_cosine_ndcg@5": 0.3181733250045077,
+        "uz_wiki_cosine_ndcg@10": 0.33666378377511963,
+        "uz_wiki_cosine_mrr@1": 0.2564,
+        "uz_wiki_cosine_mrr@5": 0.29959000000000013,
+        "uz_wiki_cosine_mrr@10": 0.30721984126984103,
+        "uz_wiki_cosine_map@100": 0.31481628460052036
+      },
+      "flores_uz_en": {
+        "flores_uz_en_src2trg_accuracy": 0.4575098814229249,
+        "flores_uz_en_trg2src_accuracy": 0.4871541501976285,
+        "flores_uz_en_mean_accuracy": 0.47233201581027673
+      }
+    }
+  }
+}
