@@ -99,6 +99,9 @@ scores = q_emb @ p_emb.T
 print(scores)  # highest score on the Tashkent passage
 ```
 
+> Requires `sentence-transformers>=5.5.1` — the version the model was saved with.
+> Older versions cannot load it (`ModuleNotFoundError: No module named 'sentence_transformers.base'`).
+
 ## Evaluation
 
 The same protocol is applied to the base and fine-tuned models so the delta is a fair

@@ -1,6 +1,8 @@
-# Verified on Colab (latest stable) before pinning. Floors reflect the
-# sentence-transformers Trainer API used by src/train.py.
-sentence-transformers>=3.0
+# Verified on Colab (latest stable) before pinning. The floor is the version the
+# models were trained/saved with: their modules.json references
+# sentence_transformers.base, which only exists in >=5.5, so older versions cannot
+# load the published models (ModuleNotFoundError: No module named 'sentence_transformers.base').
+sentence-transformers>=5.5.1
 transformers>=4.40
 datasets>=2.19
 accelerate>=0.30
