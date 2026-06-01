@@ -124,8 +124,8 @@ def _print_summary(results: dict) -> None:
             print(f"\n[{group}/{stage}] {entry.get('model')}")
             for task in (IR_NAME, FLORES_NAME):
                 scores = entry.get(task, {})
-                if scores.get("status") == "skipped":
-                    print(f"  {task}: skipped ({scores.get('reason')})")
+                if scores.get("status") in ("skipped", "failed"):
+                    print(f"  {task}: {scores['status']} ({scores.get('reason')})")
                     continue
                 for k, v in scores.items():
                     if isinstance(v, (int, float)):
@@ -168,12 +168,14 @@ def main() -> None:
     else:
         try:
             entry[FLORES_NAME] = _run_flores(model, spec["query_prefix"])
-        except Exception as exc:  # gated dataset / auth / network
-            raise SystemExit(
-                "FLORES+ load failed. It is gated -- accept the terms at "
-                "https://huggingface.co/datasets/openlanguagedata/flores_plus and run "
-                "`huggingface-cli login` (or set HF_TOKEN). To evaluate the monolingual "
-                f"task only, re-run with --skip-flores.\n  underlying error: {exc}"
+        except Exception as exc:  # gated dataset / auth / network -- keep the IR results
+            entry[FLORES_NAME] = {"status": "failed", "reason": str(exc)}
+            print(
+                "\n[WARN] FLORES+ eval failed -- IR results kept, FLORES recorded as failed.\n"
+                "  It is gated: accept the terms at "
+                "https://huggingface.co/datasets/openlanguagedata/flores_plus and authenticate "
+                "(HF_TOKEN / huggingface-cli login), or pass --skip-flores to suppress this.\n"
+                f"  underlying error: {exc}"
             )
 
     results = _load_results()
