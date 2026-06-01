@@ -1,10 +1,10 @@
 """Fine-tune a base model on the Uzbek embedding pairs.
 
 MultipleNegativesRankingLoss with in-batch negatives, one pass over the (optionally
-subsampled) train split. ``config.BATCH_SIZE`` is sized to fill a free-tier T4 -- a
-plain forward/backward is faster than gradient caching once the batch already fits.
-The model family is selected with ``--group``; its base checkpoint, output repo and
-input prefixes come from ``config.MODELS``.
+subsampled) train split. ``config.BATCH_SIZE`` is tuned for an A100 40GB (plain
+forward/backward beats gradient caching once the batch already fits); drop it to ~48
+for a free-tier T4. The model family is selected with ``--group``; its base checkpoint,
+output repo and input prefixes come from ``config.MODELS``.
 
     python -m src.train --group minilm
     python -m src.train --group e5_small
