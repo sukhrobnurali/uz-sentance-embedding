@@ -42,7 +42,7 @@ FLORES_SPLIT = "devtest"
 # --- Training hyperparameters ---
 SEED = 42
 EPOCHS = 1
-BATCH_SIZE = 96             # in-batch negatives; sized to fill a free-tier T4 (128 OOMs)
+BATCH_SIZE = 192            # in-batch negatives; fits an A100 40GB with margin (drop to ~48 on a free T4)
 LR = 2e-5
 WARMUP_RATIO = 0.1
 MAX_SEQ_LEN = 192
