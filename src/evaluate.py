@@ -60,6 +60,21 @@ def _run_flores(model, prefix: str) -> dict:
     return dict(evaluator(model))
 
 
+def _load_path(group: str, stage: str, override: str | None) -> str:
+    """Where to load weights from. The finetuned stage prefers the local checkpoint
+    written by training, so evaluation never depends on a successful Hub push; it
+    falls back to the Hub id only if no local checkpoint exists."""
+    if override:
+        return override
+    if stage == "finetuned":
+        local = config.output_dir(group)
+        if local.exists():
+            print(f"[eval] loading local checkpoint: {local}")
+            return str(local)
+        print(f"[eval] no local checkpoint at {local}; loading {config.MODELS[group][stage]} from the Hub")
+    return config.MODELS[group][stage]
+
+
 def _load_results() -> dict:
     if config.RESULTS_PATH.exists():
         return json.loads(config.RESULTS_PATH.read_text(encoding="utf-8"))
@@ -138,8 +153,8 @@ def main() -> None:
     args = parser.parse_args()
 
     spec = config.MODELS[args.group]
-    model_id = args.model or spec[args.stage]
-    model = SentenceTransformer(model_id)
+    model_id = args.model or spec[args.stage]  # canonical id recorded in results
+    model = SentenceTransformer(_load_path(args.group, args.stage, args.model))
     model.max_seq_length = config.MAX_SEQ_LEN
 
     entry = {

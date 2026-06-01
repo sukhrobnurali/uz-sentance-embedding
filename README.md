@@ -7,7 +7,7 @@ on a held-out set.
 - **Base model:** `intfloat/multilingual-e5-small` (118M, 384-dim, MIT)
 - **Training data:** [`sukhrobnurali/uzbek-embedding-pairs`](https://huggingface.co/datasets/sukhrobnurali/uzbek-embedding-pairs)
   (356k `(anchor, positive)` pairs: Uzbek Wikipedia, OPUS-100 uz↔en, Latin↔Cyrillic)
-- **Objective:** `MultipleNegativesRankingLoss`, 1 epoch
+- **Objective:** `CachedMultipleNegativesRankingLoss` (GradCache), 1 epoch — keeps the full batch of in-batch negatives while fitting a free-tier T4
 - **Output model:** `sukhrobnurali/uzbek-e5-small`
 
 ## Layout

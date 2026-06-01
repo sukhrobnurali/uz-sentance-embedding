@@ -42,7 +42,8 @@ FLORES_SPLIT = "devtest"
 # --- Training hyperparameters ---
 SEED = 42
 EPOCHS = 1
-BATCH_SIZE = 128            # lower if the GPU OOMs
+BATCH_SIZE = 128            # in-batch negatives; cached loss keeps this fixed regardless of GPU
+MINI_BATCH_SIZE = 32        # cached-loss forward/backward chunk; this caps GPU memory, not the negatives
 LR = 2e-5
 WARMUP_RATIO = 0.1
 MAX_SEQ_LEN = 192
@@ -54,3 +55,9 @@ K_VALUES = [1, 5, 10]
 # --- Paths ---
 ROOT = Path(__file__).resolve().parent
 RESULTS_PATH = ROOT / "results" / "metrics.json"
+
+
+def output_dir(group: str, smoke: bool = False) -> Path:
+    """Local save path for a fine-tuned model, shared by training and evaluation."""
+    name = MODELS[group]["finetuned"].split("/")[-1]
+    return ROOT / "outputs" / (f"{name}-smoke" if smoke else name)

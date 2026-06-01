@@ -1,8 +1,11 @@
 """Fine-tune a base model on the Uzbek embedding pairs.
 
-MultipleNegativesRankingLoss with in-batch negatives, one pass over the (optionally
-subsampled) train split. The model family is selected with ``--group``; its base
-checkpoint, output repo and input prefixes come from ``config.MODELS``.
+CachedMultipleNegativesRankingLoss with in-batch negatives, one pass over the
+(optionally subsampled) train split. The cached (GradCache) variant runs the
+forward/backward in chunks of ``config.MINI_BATCH_SIZE`` so the full
+``config.BATCH_SIZE`` worth of negatives fits on a free-tier T4. The model family
+is selected with ``--group``; its base checkpoint, output repo and input prefixes
+come from ``config.MODELS``.
 
     python -m src.train --group minilm
     python -m src.train --group e5_small
@@ -19,22 +22,17 @@ from sentence_transformers import (
     SentenceTransformerTrainer,
     SentenceTransformerTrainingArguments,
 )
-from sentence_transformers.losses import MultipleNegativesRankingLoss
+from sentence_transformers.losses import CachedMultipleNegativesRankingLoss
 from sentence_transformers.training_args import BatchSamplers
 
 import config
 from src import data
 
 
-def _output_dir(group: str, smoke: bool) -> str:
-    name = config.MODELS[group]["finetuned"].split("/")[-1]
-    return str(config.ROOT / "outputs" / (f"{name}-smoke" if smoke else name))
-
-
 def _training_args(group: str, smoke: bool) -> SentenceTransformerTrainingArguments:
     use_bf16 = torch.cuda.is_available() and torch.cuda.is_bf16_supported()
     return SentenceTransformerTrainingArguments(
-        output_dir=_output_dir(group, smoke),
+        output_dir=str(config.output_dir(group, smoke)),
         num_train_epochs=config.EPOCHS,
         per_device_train_batch_size=8 if smoke else config.BATCH_SIZE,
         learning_rate=config.LR,
@@ -56,7 +54,7 @@ def train(group: str, smoke: bool = False, push: bool = True) -> SentenceTransfo
     model.max_seq_length = config.MAX_SEQ_LEN
 
     train_ds = data.load_train_dataset(group, smoke=smoke)
-    loss = MultipleNegativesRankingLoss(model)
+    loss = CachedMultipleNegativesRankingLoss(model, mini_batch_size=config.MINI_BATCH_SIZE)
 
     trainer = SentenceTransformerTrainer(
         model=model,
@@ -66,11 +64,18 @@ def train(group: str, smoke: bool = False, push: bool = True) -> SentenceTransfo
     )
     trainer.train()
 
-    out_dir = _output_dir(group, smoke)
+    out_dir = str(config.output_dir(group, smoke))
     model.save(out_dir)
     if push and not smoke:
-        model.push_to_hub(spec["finetuned"])
-        print(f"Pushed to https://huggingface.co/{spec['finetuned']}")
+        try:
+            model.push_to_hub(spec["finetuned"])
+            print(f"Pushed to https://huggingface.co/{spec['finetuned']}")
+        except Exception as exc:  # auth/network: the local save is the source of truth
+            print(
+                f"WARNING: push to the Hub failed -- the model is saved locally at {out_dir}.\n"
+                f"  To push, run `huggingface-cli login` with a write token and re-run.\n"
+                f"  underlying error: {exc}"
+            )
     else:
         print(f"Saved locally to {out_dir} (push skipped)")
     return model
